@@ -13,7 +13,8 @@ public class Controller
     public Controller(fenetrePrincipale viewPrincipale)
     {
         this.viewPrincipale = viewPrincipale;
-        this.config = new SNMPConfig();
+        // On use la config de la feneter principale au lieu d'en créer une nouvelle
+        this.config = viewPrincipale.getConfig();
 
         initListeners();
     }
@@ -36,32 +37,57 @@ public class Controller
             return;
         }
 
-        // Mettre à jour la configuration
-        config.setIpAddress(viewPrincipale.getAgentIpAddress());
-        config.setOid(viewPrincipale.getObjectID());
+        // MAJ la configuration
+        config= viewPrincipale.getConfig();
 
         // Nettoyer la table avant d'ajouter de nouveaux résultats
         //viewPrincipale.clearTable();
 
+        boolean isAsync =SNMPProperties.isAsynchronous();
+
         try
         {
             String operation = viewPrincipale.getSelectedOperation();
-            String response = "";
+            String reponse = "";
+
+            if (operation== "GET" || operation=="GET_NEXT")
+            {
+                if (config.getWriteCommunity().isEmpty())
+                {
+                    viewPrincipale.showErrorMessage("La communauté de lecture n'est pas configurée. " +
+                            "Utilisez le bouton Advanced pour la configurer.");
+                    return;
+                }
+            }
 
             switch (operation)
             {
                 case "GET":
-                    response = SNMP4JGet.GET_Synchrone(config);
-                    handleResponse(response);
+                    if(isAsync==true)
+                    {
+                        reponse=SNMP4JGet.GET_Asynchrone(config);
+                    }
+                    else
+                    {
+                        reponse=SNMP4JGet.GET_Synchrone(config);
+                    }
+                    handleResponse(reponse);
                     break;
 
                 case "GET_NEXT":
-                    response = SNMP4JGetNext.GET_Synchrone(config);
-                    handleResponse(response);
+                    if(isAsync==true)
+                    {
+                        reponse=SNMP4JGetNext.GETNEXT_Asynchrone(config);
+                    }
+                    else
+                    {
+                        reponse=SNMP4JGetNext.GETNEXT_Synchrone(config);
+                    }
+                    handleResponse(reponse);
                     break;
 
                 case "SET":
-                    showSetDialog();
+                    handleSetOperation();
                     break;
             }
         }
@@ -90,13 +116,17 @@ public class Controller
 
     private void showAdvancedDialog()
     {
+        //MAJ la configuration avant d'ouvrir la fenetre advanced
+        config= viewPrincipale.getConfig();
+
         viewAdvanced = new fenetreAdvanced(config);
         viewAdvanced.pack();
         viewAdvanced.setLocationRelativeTo(viewPrincipale);
         viewAdvanced.setVisible(true);
+
     }
 
-    private void showSetDialog()
+    private void handleSetOperation()
     {
         if (config.getWriteCommunity().isEmpty())
         {
@@ -105,15 +135,19 @@ public class Controller
             return;
         }
 
+        // Afficher la fenêtre SET
         viewSet = new fenetreSet(config);
         viewSet.pack();
         viewSet.setLocationRelativeTo(viewPrincipale);
         viewSet.setVisible(true);
 
-        // Si une valeur a été définie (OK cliqué)
+        // Traiter la réponse seulement si une valeur a été définie (OK cliqué)
         if (!config.getValue().isEmpty())
         {
-            String response = SNMP4JSet.SET_Synchrone(config);
+            String response = SNMPProperties.isAsynchronous() ?
+                    SNMP4JSet.SET_Asynchrone(config) :
+                    SNMP4JSet.SET_Synchrone(config);
+
             if (response.equals("SET reussi"))
             {
                 viewPrincipale.showInfoMessage(response);
@@ -125,12 +159,5 @@ public class Controller
         }
     }
 
-    // Point d'entrée de l'application
-    public static void main(String[] args)
-    {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            fenetrePrincipale view = new fenetrePrincipale();
-            Controller controller = new Controller(view);
-        });
-    }
+
 }

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class SNMP4JGetNext
 {
-    public static String GET_Synchrone(SNMPConfig config)
+    public static String GETNEXT_Synchrone(SNMPConfig config)
     {
         String reponse = "";
         TransportMapping transport = null;
@@ -100,7 +100,7 @@ public class SNMP4JGetNext
     }
 
 
-    public static String GET_Asynchrone(SNMPConfig config)
+    public static String GETNEXT_Asynchrone(SNMPConfig config)
     {
         String reponse = "";
         TransportMapping transport= null;
@@ -148,7 +148,7 @@ public class SNMP4JGetNext
                 snmp.wait();
                 if (listener.isSuccessful()==true)
                 {
-                    reponse= listener.getResponse();
+                    reponse= listener.getResponse()+config.getIpAddress() +"; " +config.getPort() +"\n";
                 }
                 else
                 {

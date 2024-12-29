@@ -21,10 +21,13 @@ public class fenetreSet extends JDialog
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        setTitle("SNMP SET");
 
 
         comboBox_DataType.removeAllItems();
         comboBox_DataType.addItem("OctectString");
+        comboBox_DataType.addItem("Integer");
+
 
         textField_ObjectID.setText(config.getOid());
         comboBox_DataType.setSelectedItem("OctectString");
@@ -73,7 +76,8 @@ public class fenetreSet extends JDialog
         dispose();
     }
 
-    public void setValue(String value) {
+    public void setValue(String value)
+    {
         textField_Value.setText(value);
     }
 
@@ -109,6 +113,7 @@ public class fenetreSet extends JDialog
 
         System.out.println("Apres appuis sur OK");
         System.out.println("ObjectID: "+config.getOid()+ " Value: "+ config.getValue());
+
 
         System.exit(0);
     }

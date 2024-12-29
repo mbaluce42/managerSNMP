@@ -12,7 +12,6 @@ public class SNMPConfig
     private String snmpVersion;
 
     private String oid;
-    //private String dataType;
     private String value;
 
 
@@ -27,7 +26,6 @@ public class SNMPConfig
         snmpVersion = "2";
 
         oid="";
-        //dataType= "OctetString";
         value="";
     }
 
@@ -75,8 +73,6 @@ public class SNMPConfig
     }
     public String getOid() { return oid; }
 
-   /* public void setDataType(String dataType) { this.dataType = dataType; }
-    public String getDataType() { return dataType; }*/
 
     public void setValue(String value) { this.value = value; }
     public String getValue() { return value; }

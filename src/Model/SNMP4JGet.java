@@ -143,7 +143,7 @@ public class SNMP4JGet
                 snmp.wait();
                 if (listener.isSuccessful()==true)
                 {
-                    reponse= listener.getResponse();
+                    reponse= listener.getResponse()+config.getIpAddress() +"; " +config.getPort() +"\n";
                 }
                 else
                 {

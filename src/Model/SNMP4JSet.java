@@ -44,7 +44,7 @@ public class SNMP4JSet
         //config requête PDU
         PDU pdu = new PDU();
         pdu.setType(PDU.SET);
-        pdu.add(new org.snmp4j.smi.VariableBinding(new OID(config.getOid()),new OctetString(config.getValue())));
+        pdu.add(new VariableBinding(new OID(config.getOid()), new OctetString(config.getValue())));
 
 
         ResponseEvent paquetReponse = null;

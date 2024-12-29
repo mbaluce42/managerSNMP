@@ -36,8 +36,8 @@ public class SnmpListener implements ResponseListener
 
             PDU pduReponse = event.getResponse();
 
-            System.out.println("Status réponse = " + pduReponse.getErrorStatus());
-            System.out.println("Status réponse = " + pduReponse.getErrorStatusText());
+            System.out.println("Status reponse code = " + pduReponse.getErrorStatus());
+            System.out.println("Status reponse texte = " + pduReponse.getErrorStatusText());
 
             operationSuccess = (pduReponse.getErrorStatus() == PDU.noError);
 
@@ -50,8 +50,10 @@ public class SnmpListener implements ResponseListener
                 //Vector vecReponse = (Vector) pduReponse.getVariableBindings();
                 List<? extends VariableBinding> vecReponse = pduReponse.getVariableBindings();
 
-                String reponse;
-                for (int i = 0; i < vecReponse.size(); i++) {
+
+                for (int i = 0; i < vecReponse.size(); i++)
+                {
+                    String reponse;
 
                     System.out.println("Reponse recue dans le SNMP listener");
 
@@ -64,9 +66,11 @@ public class SnmpListener implements ResponseListener
                     //type
                     reponse = reponse + valu.getSyntaxString() + "; ";
                     //IP
-                    reponse = reponse + event.getUserObject() + "; ";
+                    //reponse = reponse + event.getUserObject().toString() + "; ";
                     //Port
-                    reponse = reponse + "targetPort\n";
+                    //reponse = reponse + "targetPort\n";
+
+                    responseData =reponse;
                 }
             }
             synchronized(snmpManager)

@@ -1,6 +1,8 @@
 package View;
 
 
+import Model.SNMPConfig;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
@@ -15,9 +17,11 @@ public class fenetrePrincipale extends JFrame
     private JButton button_Go;
     private JTable table_ReponseRequest;
     private DefaultTableModel tableModel;
+    private SNMPConfig config;
 
     public fenetrePrincipale()
     {
+        config = new SNMPConfig();
         //initalise le model de la table
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Name/OID");
@@ -32,9 +36,12 @@ public class fenetrePrincipale extends JFrame
         comboBox_Operations.addItem("GET_NEXT");
         comboBox_Operations.addItem("SET");
 
+        textField_AgentIpAddress.setText(config.getIpAddress());
+
         //initialise le panel de la fenetre
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ferme l'app quand quand on clic sur la croix
         setContentPane(panel1);
+        setTitle("Manager SNMP");
         pack();
         setVisible(true);
 
@@ -72,6 +79,21 @@ public class fenetrePrincipale extends JFrame
     public void showInfoMessage(String message)
     {
         JOptionPane.showMessageDialog(this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+   /* public void saveConfig(SNMPConfig config)
+    {
+        config.setIpAddress(getAgentIpAddress());
+        config.setOid(getObjectID());
+    }*/
+
+    // Méthode pour charger une configuration
+    public SNMPConfig getConfig()
+    {
+        config.setIpAddress(getAgentIpAddress());
+        config.setOid(getObjectID());
+
+        return config;
     }
 
     //ajoute un listener sur le bouton Go -> pour lancer la requete

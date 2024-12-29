@@ -23,7 +23,7 @@ public class fenetreAdvanced extends JDialog
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        setTitle("Advanced Properties");
+        setTitle("SNMP Advanced Properties");
 
         comboBox_SNMPversion.removeAllItems();
         comboBox_SNMPversion.addItem("1");
