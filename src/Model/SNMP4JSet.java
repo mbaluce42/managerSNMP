@@ -16,9 +16,9 @@ import java.util.logging.Logger;
 
 public class SNMP4JSet
 {
-    public String SET_Synchrone(SNMPConfig config)
+    public static String SET_Synchrone(SNMPConfig config)
     {
-        String reponse = "";
+        String reponse="";
         TransportMapping transport= null;
         try
         {
@@ -64,27 +64,83 @@ public class SNMP4JSet
             System.out.println("Status réponse = " + pduReponse.getErrorStatus());
             System.out.println("Status réponse = " + pduReponse.getErrorStatusText());
 
-            Vector vecReponse= (Vector) pduReponse.getVariableBindings();
+            boolean operationSuccess = (pduReponse.getErrorStatus() == PDU.noError);
 
-            for(int i = 0; i < vecReponse.size(); i++)
+            if (!operationSuccess)
             {
-                System.out.println("Reponse recue dans le SNMP listener");
-
-                //Vector<String> rowData = new Vector<>();
-                VariableBinding vb = (org.snmp4j.smi.VariableBinding) vecReponse.get(i);
-                Variable valu = vb.getVariable();
-                //Name/OID
-                reponse=vb.getOid().toString() + "; ";
-                //Value
-                reponse=reponse + valu.toString() + "; ";
-                //type
-                reponse=reponse + valu.getSyntaxString() + "; ";
-                //IP
-                reponse=reponse + config.getIpAddress() +"; ";
-                //Port
-                reponse= reponse + Integer.toString(config.getPort());
+                reponse="Erreur: "+pduReponse.getErrorStatusText();
+            }
+            else
+            {
+                reponse= "SET reussi";
             }
         }
-        return reponse; //utiliser split pour recuperer les valeurs
+
+        return reponse;
+
+    }
+
+    public static String SET_Asynchrone(SNMPConfig config)
+    {
+        String reponse="";
+        TransportMapping transport= null;
+        try
+        {
+            transport = new DefaultUdpTransportMapping();
+            transport.listen();
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(SNMP4JGet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        Snmp snmp = new Snmp(transport);
+
+        // Config de la cible SNMP
+        CommunityTarget target = new CommunityTarget();
+        target.setVersion(config.getSnmpVersionNumber());
+        target.setCommunity(new OctetString(config.getWriteCommunity()));
+        Address targetAddress = new UdpAddress(config.getIpAddress() + "/" + config.getPort());
+        target.setAddress(targetAddress);
+        target.setRetries(2);
+        target.setTimeout(1500);
+
+        // Config requête PDU
+        PDU pdu = new PDU();
+        pdu.setType(PDU.SET);
+        pdu.add(new VariableBinding(new OID(config.getOid()), new OctetString(config.getValue())));
+
+        // Création du listener et envoi asynchrone
+        SnmpListener listener = new SnmpListener(snmp,"SET");
+        try
+        {
+            snmp.send(pdu, target, null, listener);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(SNMP4JGetNext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        synchronized (snmp)
+        {
+            try
+            {
+                snmp.wait();
+                if (listener.isSuccessful()==true)
+                {
+                    reponse= "SET reussi";
+                }
+                else
+                {
+                    reponse="Erreur: " + listener.getErrorMessage();
+                }
+            }
+            catch (InterruptedException ex)
+            {
+                Logger.getLogger(SNMP4JGetNext.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        return reponse;
     }
 }

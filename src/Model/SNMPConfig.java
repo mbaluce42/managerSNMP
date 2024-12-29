@@ -12,7 +12,7 @@ public class SNMPConfig
     private String snmpVersion;
 
     private String oid;
-    private String dataType;
+    //private String dataType;
     private String value;
 
 
@@ -22,12 +22,12 @@ public class SNMPConfig
         // Valeurs par défaut
         ipAddress = "127.0.0.1";
         port = 161;
-        readCommunity = "public";
-        writeCommunity = "private";
-        snmpVersion = "1";
+        readCommunity = "";
+        writeCommunity = "";
+        snmpVersion = "2";
 
         oid="";
-        dataType= "OctetString";
+        //dataType= "OctetString";
         value="";
     }
 
@@ -75,8 +75,8 @@ public class SNMPConfig
     }
     public String getOid() { return oid; }
 
-    public void setDataType(String dataType) { this.dataType = dataType; }
-    public String getDataType() { return dataType; }
+   /* public void setDataType(String dataType) { this.dataType = dataType; }
+    public String getDataType() { return dataType; }*/
 
     public void setValue(String value) { this.value = value; }
     public String getValue() { return value; }

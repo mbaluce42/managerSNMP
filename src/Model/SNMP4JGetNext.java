@@ -16,7 +16,86 @@ import java.util.logging.Logger;
 
 public class SNMP4JGetNext
 {
-    public String GET_Asynchrone(SNMPConfig config)
+    public String GET_Synchrone(SNMPConfig config)
+    {
+        String reponse = "";
+        TransportMapping transport = null;
+        try
+        {
+            transport = new DefaultUdpTransportMapping();
+            transport.listen();
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(SNMP4JGetNext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        Snmp snmp = new Snmp(transport);
+
+        // Config de la cible SNMP
+        CommunityTarget target = new CommunityTarget();
+        target.setVersion(config.getSnmpVersionNumber());
+        target.setCommunity(new OctetString(config.getReadCommunity()));
+        Address targetAddress = new UdpAddress(config.getIpAddress() + "/" + config.getPort());
+        target.setAddress(targetAddress);
+        target.setRetries(2);
+        target.setTimeout(1500);
+
+        // Config requête PDU
+        PDU pdu = new PDU();
+        pdu.setType(PDU.GETNEXT);
+        pdu.add(new VariableBinding(new OID(config.getOid())));
+
+        // Envoi synchrone
+        ResponseEvent paquetReponse = null;
+        try
+        {
+            paquetReponse = snmp.getNext(pdu, target);
+            System.out.println("Requete SNMP envoyée à l'agent");
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        if(paquetReponse != null)
+        {
+            PDU pduReponse = paquetReponse.getResponse();
+            System.out.println("Status réponse = " + pduReponse.getErrorStatus());
+            System.out.println("Status réponse = " + pduReponse.getErrorStatusText());
+
+            boolean operationSuccess = (pduReponse.getErrorStatus() == PDU.noError);
+
+            if (!operationSuccess)
+            {
+                reponse="Erreur: "+pduReponse.getErrorStatusText();
+            }
+            else {
+                Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+
+                for (int i = 0; i < vecReponse.size(); i++) {
+                    System.out.println("Reponse recue dans le SNMP listener");
+                    Vector<String> rowData = new Vector<>();
+                    VariableBinding vb = (VariableBinding) vecReponse.get(i);
+                    Variable value = vb.getVariable();
+                    // Name/OID
+                    reponse = vb.getOid().toString() + "; ";
+                    // Value
+                    reponse = reponse + value.toString() + "; ";
+                    // type
+                    reponse = reponse + value.getSyntaxString() + "; ";
+                    // IP
+                    reponse = reponse + config.getIpAddress() + "; ";
+                    // Port
+                    reponse = reponse + Integer.toString(config.getPort());
+                }
+            }
+        }
+        return reponse;
+    }
+
+
+    public static String GET_Asynchrone(SNMPConfig config)
     {
         String reponse = "";
         TransportMapping transport= null;
@@ -47,7 +126,7 @@ public class SNMP4JGetNext
         pdu.setType(PDU.GETNEXT);
         pdu.add(new org.snmp4j.smi.VariableBinding(new OID(config.getOid())));
 
-        SnmpListener listener = new SnmpListener(snmp);
+        SnmpListener listener = new SnmpListener(snmp,"GETNEXT");
         try
         {
             snmp.send(pdu,target,null,listener);
@@ -62,6 +141,14 @@ public class SNMP4JGetNext
             try
             {
                 snmp.wait();
+                if (listener.isSuccessful()==true)
+                {
+                    reponse= listener.getResponse();
+                }
+                else
+                {
+                    reponse="Erreur: " + listener.getErrorMessage();
+                }
             }
             catch (InterruptedException ex)
             {
@@ -69,7 +156,7 @@ public class SNMP4JGetNext
             }
         }
 
-        return reponse; //utiliser split pour recuperer les valeurs*/
+        return reponse;
     }
 
 }
