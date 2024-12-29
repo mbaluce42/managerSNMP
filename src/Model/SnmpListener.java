@@ -8,6 +8,7 @@ import org.snmp4j.event.ResponseListener;
 import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 
+import java.util.List;
 import java.util.Vector;
 
 public class SnmpListener implements ResponseListener
@@ -46,10 +47,12 @@ public class SnmpListener implements ResponseListener
             }
             if(!operationType.equals("SET")) // Pour GET et GETNEXT
             {
-                Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+                //Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+                List<? extends VariableBinding> vecReponse = pduReponse.getVariableBindings();
 
+                String reponse;
                 for (int i = 0; i < vecReponse.size(); i++) {
-                    String reponse;
+
                     System.out.println("Reponse recue dans le SNMP listener");
 
                     VariableBinding vb = (org.snmp4j.smi.VariableBinding) vecReponse.get(i);
@@ -61,10 +64,9 @@ public class SnmpListener implements ResponseListener
                     //type
                     reponse = reponse + valu.getSyntaxString() + "; ";
                     //IP
-                    reponse = reponse + "targetIp" + "; ";
+                    reponse = reponse + event.getUserObject() + "; ";
                     //Port
-                    reponse = reponse + "targetPort";
-
+                    reponse = reponse + "targetPort\n";
                 }
             }
             synchronized(snmpManager)

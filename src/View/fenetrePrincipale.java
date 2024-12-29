@@ -1,5 +1,6 @@
 package View;
 
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
@@ -8,11 +9,11 @@ public class fenetrePrincipale extends JFrame
 {
     private JPanel panel1;
     private JTextField textField_AgentIpAddress;
-    private JButton button_Go;
-    private JTable table_ReponseRequest;
     private JTextField textField_ObjectID;
     private JComboBox comboBox_Operations;
     private JButton button_Advanced;
+    private JButton button_Go;
+    private JTable table_ReponseRequest;
     private DefaultTableModel tableModel;
 
     public fenetrePrincipale()
@@ -28,6 +29,7 @@ public class fenetrePrincipale extends JFrame
 
         //initialise le comboBox
         comboBox_Operations.addItem("GET");
+        comboBox_Operations.addItem("GET_NEXT");
         comboBox_Operations.addItem("SET");
 
         //initialise le panel de la fenetre
@@ -57,19 +59,28 @@ public class fenetrePrincipale extends JFrame
     {
         tableModel.addRow(new Object[]{nameOid, value, type, ipPort});
     }
+    public void clearTable()
+    {
+        tableModel.setRowCount(0);
+    }
 
     public void showErrorMessage(String message)
     {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    //ajoute un listener sur le bouton Go
+    public void showInfoMessage(String message)
+    {
+        JOptionPane.showMessageDialog(this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    //ajoute un listener sur le bouton Go -> pour lancer la requete
     public void addGoButtonListener(ActionListener listener)
     {
         button_Go.addActionListener(listener);
     }
 
-    //ajoute un listener sur le bouton Advanced
+    //ajoute un listener sur le bouton Advanced -> permet d'afficher la fenetreAdvanced
     public void addAdvancedButtonListener(ActionListener listener)
     {
         button_Advanced.addActionListener(listener);

@@ -8,6 +8,7 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
 import java.io.ObjectInputFilter;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,9 +69,10 @@ public class SNMP4JGet
             {
                 reponse="Erreur: "+pduReponse.getErrorStatusText();
             }
-            else {
-                Vector vecReponse = (Vector) pduReponse.getVariableBindings();
-
+            else
+            {
+                //Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+                List<? extends VariableBinding> vecReponse = pduReponse.getVariableBindings();
                 for (int i = 0; i < vecReponse.size(); i++) {
                     System.out.println("Reponse recue dans le SNMP listener");
                     Vector<String> rowData = new Vector<>();

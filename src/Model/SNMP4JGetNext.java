@@ -10,13 +10,14 @@ import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SNMP4JGetNext
 {
-    public String GET_Synchrone(SNMPConfig config)
+    public static String GET_Synchrone(SNMPConfig config)
     {
         String reponse = "";
         TransportMapping transport = null;
@@ -70,10 +71,14 @@ public class SNMP4JGetNext
             {
                 reponse="Erreur: "+pduReponse.getErrorStatusText();
             }
-            else {
-                Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+            else
+            {
+                //Vector vecReponse = (Vector) pduReponse.getVariableBindings();
+                List<? extends VariableBinding> vecReponse = pduReponse.getVariableBindings();
 
-                for (int i = 0; i < vecReponse.size(); i++) {
+
+                for (int i = 0; i < vecReponse.size(); i++)
+                {
                     System.out.println("Reponse recue dans le SNMP listener");
                     Vector<String> rowData = new Vector<>();
                     VariableBinding vb = (VariableBinding) vecReponse.get(i);
